@@ -1,4 +1,6 @@
-package Entity;
+package entity;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,9 +17,11 @@ public class GeoPosition {
     }
 
     @Column(name = "geo_lat")
+    @JsonProperty("lat")
     BigDecimal latitude;
 
     @Column(name = "geo_lng")
+    @JsonProperty("lng")
     BigDecimal longitude;
 
     public BigDecimal getLatitude() {
@@ -52,5 +56,13 @@ public class GeoPosition {
         int result = latitude != null ? latitude.hashCode() : 0;
         result = 31 * result + (longitude != null ? longitude.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "GeoPosition{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
     }
 }

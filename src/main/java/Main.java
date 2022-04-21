@@ -1,47 +1,66 @@
+import entity.Address;
+import entity.Company;
+import entity.GeoPosition;
+import entity.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.HibernateException;
-import org.hibernate.Metamodel;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
+import org.hibernate.service.ServiceRegistry;
+import service.JsonLoader;
 
-import javax.persistence.metamodel.EntityType;
-
-import java.util.Map;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 
 public class Main {
-    private static final SessionFactory ourSessionFactory;
+    private static final EntityManager em;
 
     static {
         try {
             Configuration configuration = new Configuration();
-            configuration.configure();
+            configuration.configure("hibernate.cfg.xml");
+            configuration.addAnnotatedClass(User.class);
+            configuration.addAnnotatedClass(Company.class);
+            configuration.addAnnotatedClass(Address.class);
+            configuration.addAnnotatedClass(GeoPosition.class);
 
-            ourSessionFactory = configuration.buildSessionFactory();
+            StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
+            serviceRegistryBuilder.applySettings(configuration.getProperties());
+            ServiceRegistry serviceRegistry =  serviceRegistryBuilder.build();
+
+            EntityManagerFactory factory = new EntityManagerFactoryImpl(
+                    PersistenceUnitTransactionType.RESOURCE_LOCAL, true, null, configuration, serviceRegistry, null);
+
+            em = factory.createEntityManager();
         } catch (Throwable ex) {
             throw new ExceptionInInitializerError(ex);
         }
     }
 
-    public static Session getSession() throws HibernateException {
-        return ourSessionFactory.openSession();
-    }
-
     public static void main(final String[] args) throws Exception {
-        final Session session = getSession();
+
         try {
-            System.out.println("querying all the managed entities...");
-            final Metamodel metamodel = session.getSessionFactory().getMetamodel();
-            for (EntityType<?> entityType : metamodel.getEntities()) {
-                final String entityName = entityType.getName();
-                final Query query = session.createQuery("from " + entityName);
-                System.out.println("executing: " + query.getQueryString());
-                for (Object o : query.list()) {
-                    System.out.println("  " + o);
-                }
+            String json = JsonLoader.getInstance().getContent("https://jsonplaceholder.typicode.com/users").get();
+            System.out.println(json);
+
+            ObjectMapper mapper = new ObjectMapper();
+            User[] users = mapper.readValue(json, User[].class);
+            em.getTransaction().begin();
+            for (User user : users) {
+                em.persist(user);
+                System.out.println(user.toString());
+
             }
+            em.getTransaction().commit();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         } finally {
-            session.close();
+            em.close();
         }
     }
 }

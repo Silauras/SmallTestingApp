@@ -1,4 +1,6 @@
-package Entity;
+package entity;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,10 +17,15 @@ public class Company {
     }
 
     @Column(name = "company_name")
+    @JsonProperty("name")
     String name;
+
     @Column(name = "company_catch_phrase")
+    @JsonProperty("catchPhrase")
     String catchPhrase;
+
     @Column(name = "company_business_strategy")
+    @JsonProperty("bs")
     String businessStrategy;
 
     public String getName() {
@@ -63,5 +70,14 @@ public class Company {
         result = 31 * result + (catchPhrase != null ? catchPhrase.hashCode() : 0);
         result = 31 * result + (businessStrategy != null ? businessStrategy.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "name='" + name + '\'' +
+                ", catchPhrase='" + catchPhrase + '\'' +
+                ", businessStrategy='" + businessStrategy + '\'' +
+                '}';
     }
 }

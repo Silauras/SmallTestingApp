@@ -1,4 +1,6 @@
-package Entity;
+package entity;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -20,18 +22,23 @@ public class Address {
     }
 
     @Column(name = "street")
+            @JsonProperty("street")
     String street;
 
     @Column(name = "suite")
+            @JsonProperty("suite")
     String suite;
 
     @Column(name = "city")
+            @JsonProperty("city")
     String city;
 
     @Column(name = "zipcode")
+    @JsonProperty("zipcode")
     String zipCode;
 
     @Embedded
+    @JsonProperty("geo")
     GeoPosition geoPosition;
 
     public String getStreet() {
@@ -96,5 +103,16 @@ public class Address {
         result = 31 * result + (zipCode != null ? zipCode.hashCode() : 0);
         result = 31 * result + (geoPosition != null ? geoPosition.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "street='" + street + '\'' +
+                ", suite='" + suite + '\'' +
+                ", city='" + city + '\'' +
+                ", zipCode='" + zipCode + '\'' +
+                ", geoPosition=" + geoPosition +
+                '}';
     }
 }
