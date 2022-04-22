@@ -9,7 +9,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
-import service.JsonLoader;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -54,13 +53,13 @@ public class DatabaseManager {
         }
     }
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     public void saveObjects(Object[] objects) {
         entityManager.getTransaction().begin();
         for (Object object : objects) {
             entityManager.persist(object);
-            logger.info("add " + object.getClass().getName() + " to database " + object.toString());
+            logger.info("add " + object.getClass().getName() + " to database " + object);
         }
         entityManager.getTransaction().commit();
 

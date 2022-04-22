@@ -21,12 +21,12 @@ public class Main {
             if (json.isPresent()) {
                 User[] users = mapper.readValue(json.get(), User[].class);
                 List<User> userList = new ArrayList<>();
-                for (int i = 0; i < users.length; i++) {
-                    if (emailValidator.isValid(users[i].getEmail())) {
-                        userList.add(users[i]);
-                        logger.info("user with id:" + users[i].getId() + " with email: " + users[i].getEmail() + " has valid email");
+                for (User user : users) {
+                    if (emailValidator.isValid(user.getEmail())) {
+                        userList.add(user);
+                        logger.info("user with id:" + user.getId() + " with email: " + user.getEmail() + " has valid email");
                     } else {
-                        logger.info("user with id:" + users[i].getId() + " with email: " + users[i].getEmail() + " has invalid email");
+                        logger.info("user with id:" + user.getId() + " with email: " + user.getEmail() + " has invalid email");
                     }
 
                 }
