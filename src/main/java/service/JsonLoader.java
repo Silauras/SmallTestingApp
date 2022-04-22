@@ -19,12 +19,12 @@ public class JsonLoader {
     public static JsonLoader getInstance() {
         if (instance == null) {
             instance = new JsonLoader();
-            logger.info("instance created");
+            instance.logger.info("instance created");
         }
         return instance;
     }
 
-    final static Logger logger = Logger.getLogger(JsonLoader.class);
+    private final Logger logger = Logger.getLogger(JsonLoader.class);
 
     public Optional<String> getContent(String url) {
         try {
@@ -36,7 +36,7 @@ public class JsonLoader {
                 return Optional.empty();
             }
             else{
-                logger.info("successful connection on url " + url + "with response code 200");
+                logger.info("successful connection on url " + url + " with response code 200");
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {

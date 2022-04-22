@@ -4,10 +4,12 @@ import entity.Address;
 import entity.Company;
 import entity.GeoPosition;
 import entity.User;
+import org.apache.log4j.Logger;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
+import service.JsonLoader;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -15,6 +17,7 @@ import javax.persistence.spi.PersistenceUnitTransactionType;
 
 public class DatabaseManager {
 
+    final Logger logger = Logger.getLogger(DatabaseManager.class);
     private static DatabaseManager instance;
 
     public synchronized static DatabaseManager getInstance() {
@@ -57,6 +60,7 @@ public class DatabaseManager {
         entityManager.getTransaction().begin();
         for (Object object : objects) {
             entityManager.persist(object);
+            logger.info("add " + object.getClass().getName() + " to database " + object.toString());
         }
         entityManager.getTransaction().commit();
 
