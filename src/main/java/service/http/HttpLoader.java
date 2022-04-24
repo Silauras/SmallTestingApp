@@ -1,4 +1,4 @@
-package service;
+package service.http;
 
 
 import org.apache.log4j.Logger;
@@ -12,30 +12,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class JsonLoader {
+public class HttpLoader {
 
-    private static JsonLoader instance;
+    private static HttpLoader instance;
 
-    public static JsonLoader getInstance() {
+    public static HttpLoader getInstance() {
         if (instance == null) {
-            instance = new JsonLoader();
+            instance = new HttpLoader();
             instance.logger.info("instance created");
         }
         return instance;
     }
 
-    private final Logger logger = Logger.getLogger(JsonLoader.class);
+    private final Logger logger = Logger.getLogger(HttpLoader.class);
+    private final int CONNECTION_TIMEOUT = 10000;
 
     public Optional<String> getContent(String url) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setConnectTimeout(10000);
+            connection.setConnectTimeout(CONNECTION_TIMEOUT);
             connection.setRequestMethod("GET");
             if (connection.getResponseCode() != 200) {
                 logger.error("connection failed on url: " + url + " with response code " + connection.getResponseCode());
                 return Optional.empty();
-            }
-            else{
+            } else {
                 logger.info("successful connection on url " + url + " with response code 200");
             }
             try (BufferedReader reader = new BufferedReader(
@@ -45,7 +45,6 @@ public class JsonLoader {
 
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            e.printStackTrace();
         }
         return Optional.empty();
     }

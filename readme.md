@@ -2,7 +2,6 @@
 
 This program saves json from url to database
 
-Target url set in Main class
-Database properties set in src/main/resources/hibernate.cfg.xml
+Database properties and target url setin Main class
 
 File location for logs set in src/main/resources/log4j.properties

@@ -1,23 +1,31 @@
 import entity.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.log4j.Logger;
-import service.JsonLoader;
+import service.http.HttpLoader;
 import service.database.DatabaseManager;
-import service.validation.EmailValidator;
-import service.validation.StringValidator;
 
 import java.util.*;
 
 public class Main {
-    final static Logger logger = Logger.getLogger(Main.class);
-    final static private StringValidator emailValidator = new EmailValidator();
-    final static ObjectMapper mapper = new ObjectMapper();
+
+    final static private String URL = "jdbc:postgresql:test";
+    final static private String USER = "postgres";
+    final static private String PASSWORD = "root";
+    final static private String DRIVER = "org.postgresql.Driver";
+
     final static private String TARGET_URL = "https://jsonplaceholder.typicode.com/users";
+
+    final static Logger logger = Logger.getLogger(Main.class);
+    final static private EmailValidator emailValidator = EmailValidator.getInstance();
+    final static private DatabaseManager dbManager = new DatabaseManager(URL, USER, PASSWORD, DRIVER);
+    final static ObjectMapper mapper = new ObjectMapper();
+
 
     public static void main(final String[] args) {
         try {
-            Optional<String> json = JsonLoader.getInstance().getContent(TARGET_URL);
+            Optional<String> json = HttpLoader.getInstance().getContent(TARGET_URL);
             if (json.isPresent()) {
                 User[] users = mapper.readValue(json.get(), User[].class);
                 List<User> userList = new ArrayList<>();
@@ -30,13 +38,13 @@ public class Main {
                     }
 
                 }
-                DatabaseManager.getInstance().saveObjects(userList.toArray());
-                if (checkCountOfUsers()){
+                dbManager.saveObjects(userList.toArray());
+                if (checkCountOfUsers()) {
                     logger.info("Count of users is same on every load");
-                }else{
+                } else {
                     logger.info("Count of users is not same on every load");
                 }
-            }else {
+            } else {
                 logger.error(TARGET_URL + " is invalid");
             }
         } catch (JsonProcessingException e) {
@@ -45,11 +53,11 @@ public class Main {
         }
     }
 
-    private static boolean checkCountOfUsers(){
-        JsonLoader jsonLoader = JsonLoader.getInstance();
-        Optional<String> firstAttemptToLoad = jsonLoader.getContent(TARGET_URL);
-        Optional<String> secondAttemptToLoad = jsonLoader.getContent(TARGET_URL);
-        if (firstAttemptToLoad.isEmpty() || secondAttemptToLoad.isEmpty()){
+    private static boolean checkCountOfUsers() {
+        HttpLoader httpLoader = HttpLoader.getInstance();
+        Optional<String> firstAttemptToLoad = httpLoader.getContent(TARGET_URL);
+        Optional<String> secondAttemptToLoad = httpLoader.getContent(TARGET_URL);
+        if (firstAttemptToLoad.isEmpty() || secondAttemptToLoad.isEmpty()) {
             return false;
         }
         try {

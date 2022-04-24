@@ -17,19 +17,17 @@ import javax.persistence.spi.PersistenceUnitTransactionType;
 public class DatabaseManager {
 
     final Logger logger = Logger.getLogger(DatabaseManager.class);
-    private static DatabaseManager instance;
 
-    public synchronized static DatabaseManager getInstance() {
-        if (instance == null) {
-            instance = new DatabaseManager();
-        }
-        return instance;
-    }
+    private final EntityManager entityManager;
 
-    public DatabaseManager() {
+    public DatabaseManager(String url, String user, String password, String driver){
         try {
             Configuration configuration = new Configuration();
-            configuration.configure("hibernate.cfg.xml");
+            configuration.setProperty("hibernate.connection.url", url);
+            configuration.setProperty("hibernate.connection.username", user);
+            configuration.setProperty("hibernate.connection.password", password);
+            configuration.setProperty("connection.driver_class", driver);
+            configuration.setProperty("hibernate.hbm2ddl.auto", "create");
             configuration.addAnnotatedClass(User.class);
             configuration.addAnnotatedClass(Company.class);
             configuration.addAnnotatedClass(Address.class);
@@ -53,8 +51,6 @@ public class DatabaseManager {
         }
     }
 
-    private final EntityManager entityManager;
-
     public void saveObjects(Object[] objects) {
         entityManager.getTransaction().begin();
         for (Object object : objects) {
@@ -62,6 +58,9 @@ public class DatabaseManager {
             logger.info("add " + object.getClass().getName() + " to database " + object);
         }
         entityManager.getTransaction().commit();
+    }
 
+    public EntityManager getEntityManager() {
+        return entityManager;
     }
 }
